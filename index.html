@@ -50,16 +50,13 @@ button,input{font:inherit}
 .cart b.bump{animation:bump .45s}
 @keyframes bump{40%{transform:scale(1.5) rotate(-12deg)}}
 /* hero */
-.hero{position:relative;min-height:min(100svh,940px);background:#0b1a80;color:#fff;overflow:hidden;isolation:isolate}
-.photo{position:absolute;inset:-2%;z-index:0;background:url(velebit.jpg) 50% 58%/cover no-repeat;animation:kb 38s ease-in-out infinite alternate;transform-origin:60% 55%}
-@keyframes kb{from{transform:scale(1)}to{transform:scale(1.09) translateX(-1.5%)}}
-.shade{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(9,22,120,.82) 0%,rgba(14,34,168,.5) 38%,rgba(14,34,168,.12) 62%,rgba(6,14,70,.55) 100%),linear-gradient(90deg,rgba(8,18,100,.55),rgba(8,18,100,0) 60%)}
-.credit{position:absolute;right:12px;bottom:10px;z-index:3;font-size:12px;opacity:.75;color:#fff}
-.credit a{color:inherit}
+.hero{position:relative;min-height:min(100svh,940px);background:linear-gradient(180deg,#0d26a8 0%,#1b4fc6 38%,#46ace5 calc(100% - max(240px,17.86vw) + 14px));color:#fff;overflow:hidden;isolation:isolate}
+.pano{position:absolute;left:0;bottom:0;width:100%;height:max(240px,17.86vw);object-fit:cover;object-position:54% 50%;z-index:0;display:block;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 9%);mask-image:linear-gradient(180deg,transparent 0,#000 9%);animation:kb 40s ease-in-out infinite alternate;transform-origin:55% 100%}
+@keyframes kb{to{transform:scale(1.06)}}
 #heroCv{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
-.hero-in{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:clamp(28px,5vw,64px) max(5vw,16px) clamp(64px,10vh,120px)}
+.hero-in{position:relative;z-index:2;max-width:1240px;margin:0 auto;padding:clamp(28px,5vw,64px) max(5vw,16px) calc(max(240px,17.86vw) + 28px)}
 .kick{font-size:15px;opacity:.85}
-#ttl{font-size:clamp(52px,12vw,186px);line-height:.9;margin:14px 0 22px;font-weight:900;letter-spacing:-.01em}
+#ttl{font-size:clamp(52px,10vw,160px);line-height:.9;margin:12px 0 20px;font-weight:900;letter-spacing:-.01em}
 #ttl span{display:inline-block;transform-origin:50% 100%;will-change:transform}
 .lead{font-size:clamp(17px,1.6vw,21px);max-width:44ch;text-shadow:0 1px 12px rgba(4,10,60,.8)}
 .kick{text-shadow:0 1px 8px rgba(4,10,60,.8)}
@@ -171,7 +168,7 @@ body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
 .js .rv{opacity:0;transform:translateY(28px) skewX(-3deg);transition:opacity .8s,transform .9s cubic-bezier(.2,.9,.2,1)}
 .js .rv.in{opacity:1;transform:none}
 @media(max-width:900px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.cgrid,.ogrid{grid-template-columns:minmax(0,1fr)}.cfg .fig{min-height:420px}}
-@media(max-width:600px){.steps{grid-template-columns:minmax(0,1fr)}.nav{flex-wrap:wrap;gap:6px 10px}.links{order:3;width:100%;margin-left:0}.pill{margin-left:auto}.hero-in{padding-bottom:64px}.gauge .bf{font-size:32px}.tun .fig{min-height:300px}}
+@media(max-width:600px){.steps{grid-template-columns:minmax(0,1fr)}.nav{flex-wrap:wrap;gap:6px 10px}.links{order:3;width:100%;margin-left:0}.pill{margin-left:auto}.hero-in{padding-bottom:262px}.gauge .bf{font-size:32px}.tun .fig{min-height:300px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}.js .rv{opacity:1;transform:none}}
 </style>
 </head>
@@ -185,13 +182,12 @@ body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
 </header>
 <main>
 <section class="hero" id="vrh">
-  <div class="photo" role="img" aria-label="Velebit snimljen s otoka Paga, pod oblačnim nebom"></div>
-  <div class="shade"></div>
+  <img class="pano" src="velebit-pano.jpg" alt="Panorama Velebita s oblakom na vrhu, ispred more i obala" width="2576" height="460">
   <canvas id="heroCv"></canvas>
   <div class="hero-in">
     <p class="kick">Puhaonica s Vratnika · ručno hvatano iznad Senja</p>
     <h1 id="ttl" aria-label="Flaširamo buru.">Flaširamo<br>buru.</h1>
-    <p class="lead">Hladna, suha i bijesna — ravno s Velebita u bocu od 0,7 litara. Pomakni miš preko Velebita i osjeti refule.</p>
+    <p class="lead">Hladna, suha i bijesna — ravno s Velebita u bocu od 0,7 litara. Pomakni miš preko neba i osjeti refule.</p>
     <div class="cta"><a class="btn" href="#konfigurator">Složi svoju bocu</a><a class="btn ghost" href="#kolekcija">Pogledaj kolekciju</a></div>
     <div class="gauge">
       <span class="bf" id="gBf">7 Bf</span>
@@ -199,7 +195,6 @@ body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
       <label for="heroR">Pojačaj buru na cijeloj stranici<input type="range" id="heroR" min="0" max="12" value="7"></label>
     </div>
   </div>
-  <p class="credit">Foto: <a href="https://commons.wikimedia.org/wiki/File:Pag_(HR),_Velebit_--_2022_--_0095.jpg">© Anil Öztas</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.hr">CC BY-SA 4.0</a>, izrezano i obojeno</p>
 </section>
 
 <section class="band" id="kako">
