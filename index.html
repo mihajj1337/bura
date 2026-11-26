@@ -153,6 +153,7 @@ form input[type=text]{width:100%;min-height:48px;padding:0 14px;border-radius:12
 .ship label:has(input:checked){border-color:var(--acc)}
 .ship input{accent-color:var(--acc);width:20px;height:20px;margin-top:2px}
 .ship small{display:block;color:var(--mute)}
+.nw{white-space:nowrap}
 .msg{font-size:15px;color:#c23a0b;min-height:1.4em}
 .done{text-align:center;padding:30px 10px}
 .done h3{font-size:30px;margin-bottom:10px}
@@ -263,8 +264,8 @@ body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
           <label>Ime i prezime<input type="text" id="fName" autocomplete="off" placeholder="npr. Ivana Senjanin"></label>
           <label>Mjesto<input type="text" id="fCity" autocomplete="off" placeholder="npr. Crikvenica"></label>
           <fieldset class="ship"><legend>Dostava</legend>
-            <label><input type="radio" name="ship" value="4" checked><span>Kamionom preko Vratnika · 4,00 €<small>Tri dana, ako ne zatvore cestu.</small></span></label>
-            <label><input type="radio" name="ship" value="9"><span>Golubom pismonošom · 9,00 €<small>Jedan dan. Golub nosi jednu bocu, pa šaljemo jato.</small></span></label>
+            <label><input type="radio" name="ship" value="4" checked><span>Kamionom preko Vratnika · <span class="nw">4,00 €</span><small>Tri dana, ako ne zatvore cestu.</small></span></label>
+            <label><input type="radio" name="ship" value="9"><span>Golubom pismonošom · <span class="nw">9,00 €</span><small>Jedan dan. Golub nosi jednu bocu, pa šaljemo jato.</small></span></label>
             <label><input type="radio" name="ship" value="0"><span>Vlastitim refulom · besplatno<small>Četrdeset minuta, samo nizvjetarno.</small></span></label>
           </fieldset>
           <p class="msg" id="msg" aria-live="polite"></p>
