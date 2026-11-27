@@ -196,6 +196,15 @@ footer{background:var(--cob2);color:#fff;padding:48px max(5vw,16px)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:end}
 footer p{max-width:56ch;opacity:.85;font-size:15px}
 footer .big{font-size:clamp(48px,9vw,110px);font-weight:900;font-variation-settings:'wdth' 66;line-height:.9}
+#toast{position:fixed;left:50%;bottom:22px;z-index:90;max-width:min(92vw,520px);padding:14px 20px;border-radius:16px;background:#0b1a80;color:#fff;font-weight:650;font-size:16px;line-height:1.35;box-shadow:0 18px 40px -12px rgba(0,0,40,.6);border:1px solid rgba(255,255,255,.2);transform:translate(-50%,140%);opacity:0;transition:transform .5s cubic-bezier(.2,1.3,.4,1),opacity .4s;pointer-events:none}
+#toast.on{transform:translate(-50%,0);opacity:1}
+#toast small{display:block;font-weight:400;opacity:.75;font-size:13px;margin-top:3px}
+body.jugo .hero,body.jugo .nav,body.jugo .cfg,body.jugo footer{filter:sepia(.75) saturate(1.5) hue-rotate(-18deg) brightness(.95);transition:filter 1.2s}
+.hero,.nav,.cfg,footer{transition:filter 1.2s}
+body.jugo #ttl span{rotate:4deg;translate:0 6px;transition:rotate 2s,translate 2s}
+.logo svg.gone{animation:sockfly 7s cubic-bezier(.5,0,.6,1) forwards}
+@keyframes sockfly{0%{transform:none}12%{transform:translate(20px,-10px) rotate(-20deg)}45%{transform:translate(-110vw,-30vh) rotate(-720deg);opacity:1}46%{opacity:0;transform:translate(120vw,0)}60%{opacity:1;transform:translate(60vw,0) rotate(0)}100%{transform:none}}
+.prod.fall .btl{transform:rotate(-82deg) translateX(-30px)!important;transition:transform .6s cubic-bezier(.5,1.8,.5,1)!important}
 #burst{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70}
 body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
 @keyframes shake{10%,90%{transform:translateX(calc(var(--amp) * -.4))}20%,80%{transform:translateX(calc(var(--amp) * .8))}30%,50%,70%{transform:translateX(calc(var(--amp) * -1.4)) rotate(-.3deg)}40%,60%{transform:translateX(var(--amp))}}
@@ -353,6 +362,7 @@ body.shake main{animation:shake .6s cubic-bezier(.36,.07,.19,.97)}
   </div>
 </footer>
 <canvas id="burst"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
 {
 document.documentElement.classList.add('js');
@@ -396,8 +406,8 @@ const spawn=p=>{p.x=Math.random()*(HW+200);p.y=Math.random()*HH;p.l=40+Math.rand
 function sizeHero(){const d=Math.min(devicePixelRatio||1,2);HW=hc.clientWidth;HH=hc.clientHeight;hc.width=HW*d;hc.height=HH*d;hx.setTransform(d,0,0,d,0,0);P=Array.from({length:Math.round(Math.min(1500,HW*HH/800))},()=>spawn({}));if(RM)for(let i=0;i<45;i++)drawHero(1,false)}
 function drawHero(dt,fade=true){
   if(fade){hx.globalCompositeOperation='destination-out';hx.fillStyle=`rgba(0,0,0,${(.1+S.eff*.05).toFixed(3)})`;hx.fillRect(0,0,HW,HH);hx.globalCompositeOperation='source-over'}
-  hx.strokeStyle='rgba(255,255,255,.55)';hx.lineWidth=1.1;hx.beginPath();
-  const base=PI-.32,sp=(.7+S.eff*9)*dt,tu=.25+(1-S.bf/12)*.45;
+  hx.strokeStyle=S.jugo?'rgba(255,226,170,.5)':'rgba(255,255,255,.55)';hx.lineWidth=1.1;hx.beginPath();
+  const base=S.jugo?-.45:PI-.32,sp=(.7+S.eff*9)*dt*(S.jugo?.3:1),tu=S.jugo?.9:.25+(1-S.bf/12)*.45;
   for(const p of P){
     const a=base+field(p.x,p.y,S.t)*tu;let vx=Math.cos(a)*sp,vy=Math.sin(a)*sp;
     const dx=p.x-S.mx,dy=p.y-S.my,d2=dx*dx+dy*dy;
@@ -513,6 +523,7 @@ function drawCfg(dt){
 const bc=$('#burst'),bx=bc.getContext('2d');let BU=[],BW=1,BH=1;
 function sizeBurst(){const d=Math.min(devicePixelRatio||1,2);BW=innerWidth;BH=innerHeight;bc.width=BW*d;bc.height=BH*d;bx.setTransform(d,0,0,d,0,0)}
 $('#openB').addEventListener('click',()=>{
+  if(S.bf===0){egg('tisina','…ništa. Savršena tišina, točno kako piše na etiketi.');return}
   const r=cc.getBoundingClientRect(),x=r.left+COX+60*CS,y=r.top+COY+8*CS;S.gt=1;
   if(S.sndOn&&S.snd)try{const{ac,g2}=S.snd;g2.gain.cancelScheduledValues(ac.currentTime);g2.gain.setValueAtTime(.5,ac.currentTime);g2.gain.exponentialRampToValueAtTime(.02,ac.currentTime+1.4)}catch(e){}
   if(RM)return;
@@ -529,11 +540,11 @@ function drawBurst(dt){
 }
 
 /* tunnel */
-const tc=$('#tunCv'),tx=tc.getContext('2d'),tf=$('#tunFig');let TW=1,TH=1,TD=1,TP=[],tBlow=0,tDown=false,tm={x:-1e4,y:-1e4};
+const tc=$('#tunCv'),tx=tc.getContext('2d'),tf=$('#tunFig');let tWord='',TW=1,TH=1,TD=1,TP=[],tBlow=0,tDown=false,tm={x:-1e4,y:-1e4};
 function buildTun(entry){
   TD=Math.min(devicePixelRatio||1,2);TW=tc.clientWidth;TH=tc.clientHeight;tc.width=TW*TD;tc.height=TH*TD;tx.setTransform(TD,0,0,TD,0,0);
   const off=document.createElement('canvas');off.width=TW;off.height=TH;const o=off.getContext('2d');
-  const txt=($('#tunIn').value.trim()||'BURA').toUpperCase().slice(0,14);let fs=Math.min(TH*.6,TW*1.7/Math.max(2,txt.length));
+  const txt=($('#tunIn').value.trim()||'BURA').toUpperCase().slice(0,14);tWord=txt;let fs=Math.min(TH*.6,TW*1.7/Math.max(2,txt.length));
   o.font=`900 ${fs}px Archivo,sans-serif`;while(o.measureText(txt).width>TW*.88&&fs>10){fs*=.92;o.font=`900 ${fs}px Archivo,sans-serif`}
   o.textAlign='center';o.textBaseline='middle';o.fillStyle='#fff';o.fillText(txt,TW/2,TH/2+fs*.04);
   const d=o.getImageData(0,0,TW,TH).data,stp=TW<600?3:4,np=[];
@@ -544,16 +555,18 @@ function drawTun(dt){
   if(tBlow>0)tBlow-=dt;const blowing=tDown||tBlow>0;
   tx.clearRect(0,0,TW,TH);const fast=[];tx.fillStyle='#fff';
   for(const p of TP){
-    if(blowing){const a=PI-.2+field(p.x,p.y,S.t*3)*.6,f=(.35+S.eff*1.5)*(.5+p.k);p.vx+=Math.cos(a)*f*dt;p.vy+=Math.sin(a)*f*dt;const dm=Math.pow(.96,dt);p.vx*=dm;p.vy*=dm}
+    if(blowing&&(tWord==='JUGO'||S.jugo)){p.vy+=(.05+p.k*.08)*dt;p.vx+=(Math.random()-.5)*.06*dt;const dm=Math.pow(.97,dt);p.vx*=dm;p.vy*=dm}
+    else if(blowing){const a=PI-.2+field(p.x,p.y,S.t*3)*.6,f=(.35+S.eff*1.5)*(.5+p.k);p.vx+=Math.cos(a)*f*dt;p.vy+=Math.sin(a)*f*dt;const dm=Math.pow(.96,dt);p.vx*=dm;p.vy*=dm}
     else{p.vx+=(p.hx-p.x)*.05*dt;p.vy+=(p.hy-p.y)*.05*dt;const dm=Math.pow(.86,dt);p.vx*=dm;p.vy*=dm}
     const dx=p.x-tm.x,dy=p.y-tm.y,d2=dx*dx+dy*dy;if(d2<4900){const d=Math.sqrt(d2)+.1,k=(1-d/70)*4*dt;p.vx+=dx/d*k-(dy/d)*k*.6;p.vy+=dy/d*k+(dx/d)*k*.6}
     p.x+=p.vx*dt;p.y+=p.vy*dt;
+    if(blowing&&p.y>TH-3&&(tWord==='JUGO'||S.jugo)){p.y=TH-3;p.vy=0}
     if(blowing){if(p.x<-10){p.x=TW+10+Math.random()*80;p.y=Math.random()*TH}if(p.y<-10)p.y=TH+5;if(p.y>TH+10)p.y=-5}
     if(p.vx*p.vx+p.vy*p.vy>9)fast.push(p);else tx.fillRect(p.x,p.y,2.2,2.2);
   }
   tx.fillStyle='#ff5a1f';for(const p of fast)tx.fillRect(p.x,p.y,2.6,2.6);
 }
-$('#tunGo').addEventListener('click',()=>{tBlow=90+S.bf*8});
+$('#tunGo').addEventListener('click',()=>{tBlow=90+S.bf*8;if(tWord==='JUGO'||S.jugo)egg('tunjugo','Na jugu slova ne lete. Tope se.');if(tWord==='BURA'&&S.bf>=10)egg('tunbura','Bura je odnijela samu sebe. Filozofski.')});
 $('#tunBack').addEventListener('click',()=>{tBlow=0;tDown=false});
 $('#tunIn').addEventListener('input',()=>buildTun(false));
 tf.addEventListener('pointerdown',e=>{tDown=true;try{tf.setPointerCapture(e.pointerId)}catch(_){}});
@@ -579,6 +592,7 @@ function updSound(){if(!S.sndOn||!S.snd)return;const{ac,bp,g,wp,g2}=S.snd,t=ac.c
 
 /* order */
 $('#frm').addEventListener('submit',e=>{e.preventDefault();const m=$('#msg');
+  if(/^\s*jugo\b/i.test($('#fName').value)){m.textContent='Jugo ne može naručiti. Jugo nikad ništa ne završi do kraja.';egg('jugoname','Jugo je pokušao naručiti. Naravno da nije uspio.');return}
   if(!S.cart.length){m.textContent='Košarica je prazna — dodaj barem jedan refule.';return}
   if(!$('#fName').value.trim()||!$('#fCity').value.trim()){m.textContent='Upiši ime i mjesto, inače golub ne zna kamo.';return}
   const code='BUR-'+Math.floor(1000+Math.random()*9000),tot=$('#tot').textContent,nm=$('#fName').value.trim(),n=S.cart.length;
@@ -621,6 +635,38 @@ const vio=new IntersectionObserver(es=>es.forEach(e=>{vis[e.target.dataset.v]=e.
 hero.dataset.v='hero';cc.parentElement.dataset.v='cfg';tf.dataset.v='tun';[hero,cc.parentElement,tf].forEach(el=>vio.observe(el));
 const rso=new ResizeObserver(()=>{sizeHero();sizeCfg();sizeBurst();buildTun(false)});rso.observe(document.body);
 
+/* easter eggs */
+const toastEl=$('#toast');let toastT=0;const found=new Set();
+function egg(id,msg){const first=!found.has(id);found.add(id);toastEl.innerHTML='';toastEl.append(msg);
+  const sm=document.createElement('small');sm.textContent=`Easter egg ${found.size}/9${first?'':' · već nađen'}`;toastEl.append(sm);
+  toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),4200)}
+const jugoProd=PROD.find(p=>p.id==='jugo');
+function setJugo(on){S.jugo=on;document.body.classList.toggle('jugo',on);
+  const b=rail.querySelector('[data-add="jugo"]');if(b){b.disabled=!on;b.textContent=on?'Naruči na vlastitu odgovornost · 0,01 €':'Rasprodano (zauvijek)';b.classList.toggle('ghost',on)}
+  jugoProd.p=on?.01:0;
+  if(on)egg('jugo','Stiglo je jugo. Glava boli, veš se ne suši, a odluke su loše. Ponovi kod za povratak bure.');else egg('jugo','Bura se vratila. Nebo je opet čisto.')}
+/* keyboard: Konami, and words typed anywhere */
+const KON=['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];let kseq=[],typed='';
+addEventListener('keydown',e=>{const tg=e.target;if(tg&&(tg.tagName==='INPUT'||tg.tagName==='TEXTAREA'))return;
+  kseq.push(e.key.length===1?e.key.toLowerCase():e.key);kseq=kseq.slice(-10);if(KON.every((k,i)=>kseq[i]===k)){kseq=[];setJugo(!S.jugo);return}
+  if(e.key.length===1){typed=(typed+e.key.toLowerCase()).slice(-12);
+    if(typed.endsWith('jugo')){typed='';setJugo(!S.jugo)}
+    else if(typed.endsWith('bura')){typed='';setBf(12);S.gt=1;egg('bura','Zazvao si je po imenu. 12 Bf, drži se za nešto.');if(!RM){document.body.classList.remove('shake');void document.body.offsetWidth;document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),650)}}
+    else if(typed.endsWith('senj')){typed='';egg('senj','Senjani kažu da ovo nije bura, ovo je „malo puše".')}}});
+/* windsock in the logo: click it five times */
+const logoSvg=$('.logo svg');let lc=0,lcT=0;
+$('.logo').addEventListener('click',()=>{lc++;clearTimeout(lcT);lcT=setTimeout(()=>lc=0,1600);
+  if(lc>=5){lc=0;if(!RM){logoSvg.classList.remove('gone');void logoSvg.offsetWidth;logoSvg.classList.add('gone');setTimeout(()=>logoSvg.classList.remove('gone'),7100)}
+    egg('rukav','Rukav je otpuhalo prema Italiji. Vratit će se kad bura stane.')}});
+/* hurricane: hold 12 Bf for four seconds */
+let orkanT=0,orkanCool=0;
+function orkan(dt){if(S.bf===12&&!S.jugo){orkanT+=dt/60;if(orkanT>4&&orkanCool<=0){orkanCool=25;orkanT=0;egg('orkan','Orkan! Most je zatvoren. Naravno.');
+  if(!RM){LET.forEach((el,i)=>el.animate([{transform:el.style.transform},{transform:`translate(${-200-Math.random()*900}px,${(Math.random()-.5)*300}px) rotate(${-360-Math.random()*360}deg)`,opacity:0},{transform:el.style.transform,opacity:1}],{duration:2600,delay:i*40,easing:'cubic-bezier(.5,0,.5,1)'}));
+    $$('.prod').forEach((p,i)=>{if(p.querySelector('.calm'))return;setTimeout(()=>p.classList.add('fall'),i*90);setTimeout(()=>p.classList.remove('fall'),2400+i*90)})}}}
+  else orkanT=0;if(orkanCool>0)orkanCool-=dt/60}
+/* developers */
+try{console.log('%c Bura & Co. ','background:#1430d6;color:#fff;font:900 22px Archivo,sans-serif;padding:6px 12px;border-radius:6px');console.log('%cZdravo, developeru! Bura puše i ovdje. Na stranici je skriveno 9 iznenađenja.\nTrag: ↑ ↑ ↓ ↓ ← → ← → B A, ili samo utipkaj ime jednog vjetra.','color:#ff5a1f;font-size:13px')}catch(e){}
+
 /* main loop */
 let last=performance.now(),fr=0,booted=false;
 function loop(now){
@@ -630,7 +676,7 @@ function loop(now){
   if(!RM&&Math.abs(S.sv||0)>.002){S.sv*=Math.pow(.9,dt);document.documentElement.style.setProperty('--sv',S.sv.toFixed(3))}
   if(vis.cfg&&(!RM||S.cdirty)){drawCfg(RM?0:dt);S.cdirty=false}
   if(vis.tun)drawTun(dt);
-  drawBurst(dt);updSound();
+  drawBurst(dt);updSound();orkan(dt);
   if(fr%8===0){const lo=S.bf?BF[S.bf-1][1]:0,hi=BF[S.bf][1];$('#gKm').textContent=`udar ${Math.round((lo+(hi-lo)*.5)*(.85+.55*S.gust))} km/h · Vratnik, simulacija`}
   requestAnimationFrame(loop);
 }
